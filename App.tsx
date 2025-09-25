@@ -205,10 +205,14 @@ function App() {
 
         {generatedPrompt && (
           <div className="w-full max-w-3xl mx-auto bg-gray-800 p-6 rounded-lg shadow-inner relative">
-            <h3 className="text-xl font-semibold text-cyan-400 mb-4">Generated Prompt:</h3>
-            <p className="text-gray-200 whitespace-pre-wrap font-mono text-base leading-relaxed">
-              {generatedPrompt}
-            </p>
+            <h3 className="text-xl font-semibold text-cyan-400 mb-4">Generated Prompt (Editable):</h3>
+             <textarea
+              value={generatedPrompt}
+              onChange={(e) => setGeneratedPrompt(e.target.value)}
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors font-mono text-base leading-relaxed"
+              rows={5}
+              aria-label="Generated prompt text area"
+            />
             <div className="absolute top-4 right-4">
               <button
                 onClick={handleCopy}
