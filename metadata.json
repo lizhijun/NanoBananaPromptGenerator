@@ -1,0 +1,5 @@
+{
+  "name": "Nano Banana Prompt Generator",
+  "description": "Upload a target image, and optionally an input image, to generate a descriptive prompt for transforming the input into the target using AI.",
+  "requestFramePermissions": []
+}
