@@ -118,3 +118,26 @@ export const generateImageFromPrompt = async (prompt: string, inputImages: Uploa
     throw new Error("An unknown error occurred while generating the image.");
   }
 };
+
+export const optimizePrompt = async (currentPrompt: string): Promise<string> => {
+  try {
+    const model = 'gemini-2.5-flash';
+    const optimizationInstruction = `You are an expert prompt engineer. Your task is to rewrite and enhance the following text-to-image prompt to be more vivid, detailed, and effective. Add specific details about style, composition, lighting, and mood, but keep the core subject of the original prompt intact. The new prompt must be safe for work and suitable for all audiences. Provide only the enhanced prompt text, without any preamble or explanation.
+
+Original prompt: "${currentPrompt}"`;
+
+    const response = await ai.models.generateContent({
+        model: model,
+        contents: optimizationInstruction,
+    });
+    
+    return response.text.trim();
+
+  } catch (error) {
+    console.error("Error optimizing prompt:", error);
+    if (error instanceof Error) {
+        throw new Error(`Error calling Gemini API for optimization: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while optimizing the prompt.");
+  }
+};

@@ -4,7 +4,7 @@ import Spinner from './components/Spinner';
 import CopyIcon from './components/icons/CopyIcon';
 import CheckIcon from './components/icons/CheckIcon';
 import SparklesIcon from './components/icons/SparklesIcon';
-import { generatePromptFromImages, generateImageFromPrompt } from './services/geminiService';
+import { generatePromptFromImages, generateImageFromPrompt, optimizePrompt } from './services/geminiService';
 import type { UploadedImage } from './types';
 
 function App() {
@@ -14,6 +14,7 @@ function App() {
   const [additionalRequirements, setAdditionalRequirements] = useState<string>('');
   const [generatedPrompt, setGeneratedPrompt] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isOptimizing, setIsOptimizing] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
 
@@ -119,6 +120,26 @@ function App() {
     }
   };
 
+  const handleOptimizeClick = async () => {
+    if (!generatedPrompt) return;
+
+    setIsOptimizing(true);
+    setError('');
+
+    try {
+        const optimizedPrompt = await optimizePrompt(generatedPrompt);
+        setGeneratedPrompt(optimizedPrompt);
+    } catch (e) {
+        if (e instanceof Error) {
+            setError(`Optimization failed: ${e.message}`);
+        } else {
+            setError('An unexpected error occurred during optimization.');
+        }
+    } finally {
+        setIsOptimizing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 font-sans flex flex-col items-center p-4 sm:p-6 md:p-8">
       <main className="w-full max-w-5xl mx-auto">
@@ -197,7 +218,7 @@ function App() {
             {isLoading && <Spinner />}
             {error && (
                 <div className="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-lg">
-                <strong className="font-bold">Error generating prompt: </strong>
+                <strong className="font-bold">Error: </strong>
                 <span className="block sm:inline">{error}</span>
                 </div>
             )}
@@ -209,11 +230,21 @@ function App() {
              <textarea
               value={generatedPrompt}
               onChange={(e) => setGeneratedPrompt(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors font-mono text-base leading-relaxed"
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-gray-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors font-mono text-base leading-relaxed disabled:opacity-70"
               rows={5}
               aria-label="Generated prompt text area"
+              disabled={isOptimizing}
             />
-            <div className="absolute top-4 right-4">
+            <div className="absolute top-4 right-4 flex items-center gap-2">
+               <button
+                onClick={handleOptimizeClick}
+                disabled={isOptimizing}
+                className="p-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 disabled:bg-gray-800 disabled:cursor-not-allowed"
+                aria-label="Optimize prompt"
+                title="Optimize Prompt"
+              >
+                <SparklesIcon className={`w-5 h-5 text-gray-300 ${isOptimizing ? 'animate-pulse text-cyan-400' : ''}`} />
+              </button>
               <button
                 onClick={handleCopy}
                 className="p-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500"
